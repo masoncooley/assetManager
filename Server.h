@@ -5,8 +5,15 @@
 
 #include "Asset.h"
 
-class Server
+class Server : public Asset     // the ": public Asset" allows Server to inherit from Asset class
 {
+    private:
+        unsigned int uptime,
+                     numCPUsockets;
+        bool memoryIsECC;
 
+    public:
+        Server();   // default constructor
+        Server(unsigned, unsigned, bool);     // constructor with arguments
 };
 #endif

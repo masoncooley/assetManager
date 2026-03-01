@@ -1,8 +1,10 @@
 // Client-facing Program
 
-#include <iostream>
 #include "Asset.h"     // header file for Asset class
+#include "InventoryManager.h"
 
+#include <iostream>
+#include <limits>   // for the numeric_limits on cin.ignore
 using namespace std;
 
 // clears screen and displays menu of options
@@ -31,9 +33,28 @@ void getMenuChoice()
     
     do
     {
+        InventoryManager manager;   // creates object to allow for call of InventoryManager functions from main.cpp
+       
+        displayMenu();
+        
         // get menu choice
         cout << "\nEnter menu choice: ";
         cin >> menuChoice;
+
+        // checks if input fails and informs user
+        while (true)
+        {
+            if (cin.fail())
+            {
+                cin.clear();    // clears error state
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');    // Discard invalid input
+
+                cout << "\nInvalid input was entered. Please enter a positive number from 1 to 7.\n";
+            }
+            else
+                break;
+        }
+
 
         // validate menu choice and allow user to re-enter choice
         while (menuChoice < 1 || menuChoice > 7)
@@ -43,34 +64,25 @@ void getMenuChoice()
         }
 
         // calls appropriate function based on user menu choice
-        // 
-        // ** NOTE: cout statements & comments for each switch case are just to confirm program is working correctly;
-        // these will be removed later when I include actual function calls **
         switch (menuChoice)
         {
         case 1:
-            cout << "You pressed 1";
-            /* call function to list assets */
+            manager.getFullAssetList();
             break;
         case 2:
-            cout << "You pressed 2";
-            /* call function to create asset */ 
+            manager.addAsset();
             break;
         case 3:
-            cout << "You pressed 3";
-            /* call function to modify asset */
+            manager.modifyAsset();
             break;
         case 4:
-            cout << "You pressed 4";
-            /* call function to delete asset */
+            manager.removeAsset();
             break;
         case 5:
-            cout << "You pressed 5";
-            /* call function to search assets */
+            manager.searchAsset();
             break;
         case 6:
-            cout << "You pressed 6";
-            /* call function to filter assets */
+            manager.filterAsset();
             break;
         default:
             break;
@@ -82,10 +94,11 @@ void getMenuChoice()
 
 int main()
 {
-    displayMenu();
     getMenuChoice();
 
     system("clear");    // clear screen on Linux
     system("cls");      // clear screen on Windows
     cout << "Exiting now...";
+
+    return 0;
 }
