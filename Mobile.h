@@ -3,10 +3,10 @@
 #ifndef MOBILE_H
 #define MOBILE_H
 
-#include "Asset.h"
+#include "Computer.h"
 using namespace std;
 
-class Mobile : public Asset     // the ": public Asset" allows Mobile to inherit from Asset class
+class Mobile : public Computer // the ": public Asset" allows Mobile to inherit from Asset class
 {
     private:
         string manufacturer,
@@ -16,5 +16,7 @@ class Mobile : public Asset     // the ": public Asset" allows Mobile to inherit
     public:
         Mobile();   // default constructor
         Mobile(string, string, unsigned);     // constructor with arguments
+        void displayAttributes() const override;    // overrides virtual functions from Asset
+        void setAttributes() override;              // to provide Mobile-specific behavior
 };
 #endif

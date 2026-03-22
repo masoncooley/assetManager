@@ -17,6 +17,7 @@ It should be able to see and change every aspect of the assets
 
 using namespace std;
 
+
 class InventoryManager
 {
     private:
@@ -34,7 +35,5 @@ class InventoryManager
         void filterAsset();
         void saveToFile();
         void readFromFile();
-
-
 };
 #endif

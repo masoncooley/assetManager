@@ -48,3 +48,24 @@ int Asset::getID()
 {
     return id;
 }
+
+void Asset::setAssetType(string type)
+{
+    assetType = type;
+}
+
+string Asset::getAssetType()
+{
+    return assetType;
+}
+
+// displays attributes of an object common to all asset types
+void Asset::displayAttributes() const
+{
+    cout << "ID: " << id << endl;   // print ID by calling getID function
+    cout << "Name: " << name << endl;   // print name by calling getName function
+}
+
+// this is just here so that each child class can make their own version
+void Asset::setAttributes()
+{}

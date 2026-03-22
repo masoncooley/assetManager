@@ -20,7 +20,8 @@ class Asset
 
     private:
         int id;
-        string name;
+        string name,
+               assetType;
     public:
         Asset();    // default constructor
         virtual ~Asset() = default;   // destructor (MUST BE virtual b/c there are classes derived from Asset); 
@@ -28,6 +29,12 @@ class Asset
         void setName(string);
         string getName();
         int getID();
-        // no setID function b/c I only want IDs to be set by the program, not by the user
+        // no setID() function b/c I only want IDs to be set by the program, not by the user
+        void setAssetType(string);
+        string getAssetType();
+
+        // virtual keyword allows derived classes to have custom implementations of the displayAttributes()/setAttributes() function
+        virtual void displayAttributes() const;     // const ensures that the function is read-only (immutable)
+        virtual void setAttributes();   // not const b/c the variables should be changed
 };
 #endif

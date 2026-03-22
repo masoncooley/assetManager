@@ -3,9 +3,9 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include "Asset.h"
 
-class Server : public Asset     // the ": public Asset" allows Server to inherit from Asset class
+#include "Computer.h"
+class Server : public Computer // the ": public Asset" allows Server to inherit from Asset class
 {
     private:
         unsigned int uptime,
@@ -15,5 +15,7 @@ class Server : public Asset     // the ": public Asset" allows Server to inherit
     public:
         Server();   // default constructor
         Server(unsigned, unsigned, bool);     // constructor with arguments
+        void displayAttributes() const override;    // overrides virtual functions from Asset & Computer 
+        void setAttributes() override;              // to provide Server-specific behavior
 };
 #endif

@@ -3,9 +3,9 @@
 #ifndef DESKTOP_H
 #define DESKTOP_H
 
-#include "Asset.h"
+#include "Computer.h"
 
-class Desktop : public Asset     // the ": public Asset" allows Desktop to inherit from Asset class
+class Desktop : public Computer // the ": public Asset" allows Desktop to inherit from Asset class
 {
     private:
         bool hasGPU;
@@ -15,5 +15,8 @@ class Desktop : public Asset     // the ": public Asset" allows Desktop to inher
     public:
         Desktop();   // default constructor
         Desktop(bool, string, int);     // constructor with arguments
+        void displayAttributes() const override;    // overrides virtual functions from Computer (which overrides from Asset)
+        void setAttributes() override;              // to provide Desktop-specific attributes 
+
 };
 #endif

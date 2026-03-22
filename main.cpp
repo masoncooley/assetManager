@@ -1,6 +1,5 @@
 // Client-facing Program
 
-#include "Asset.h"     // header file for Asset class
 #include "InventoryManager.h"
 
 #include <iostream>
@@ -29,12 +28,12 @@ void displayMenu()
 // gets user menu choice and calls corresponding function
 void getMenuChoice()
 {
+    InventoryManager manager;
+
     int menuChoice;
     
     do
-    {
-        InventoryManager manager;   // creates object to allow for call of InventoryManager functions from main.cpp
-       
+    {  
         displayMenu();
         
         // get menu choice
