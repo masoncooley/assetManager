@@ -20,8 +20,9 @@ void displayMenu()
          << "3 | Modify an existing asset\n"
          << "4 | Delete an existing asset\n"
          << "5 | Search for a single asset\n"
-         << "6 | Filter assets by specific criteria\n"
-         << "7 | Exit program\n"
+         << "6 | Save assets to a file\n"
+         << "7 | Read assets from a file\n"
+         << "8 | Exit program\n"
          << "-------------------------------------------\n";
 };
 
@@ -36,30 +37,26 @@ void getMenuChoice()
     {  
         displayMenu();
         
-        // get menu choice
-        cout << "\nEnter menu choice: ";
-        cin >> menuChoice;
-
-        // checks if input fails and informs user
+        // get menu choice and validate until input is valid 
         while (true)
         {
+            // get menu choice
+            cout << "\nEnter menu choice: ";
+            cin >> menuChoice;
+
+            // catches non-numeric input
             if (cin.fail())
             {
                 cin.clear();    // clears error state
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');    // Discard invalid input
 
-                cout << "\nInvalid input was entered. Please enter a positive number from 1 to 7.\n";
+                cout << "\nNon-numerical input was entered.\n";
             }
+            // catches input not in range of menu choices
+            else if (menuChoice < 1 || menuChoice > 8)
+                cout << "\nInvalid menu choice. Input must be between 1 and 8! ";
             else
                 break;
-        }
-
-
-        // validate menu choice and allow user to re-enter choice
-        while (menuChoice < 1 || menuChoice > 7)
-        {
-            cout << "\nInvalid menu choice. Please enter a single number between 1 and 7: ";
-            cin >> menuChoice;
         }
 
         // calls appropriate function based on user menu choice
@@ -81,18 +78,24 @@ void getMenuChoice()
             manager.searchAsset();
             break;
         case 6:
-            manager.filterAsset();
+            manager.saveToFile();
+            break;
+        case 7:
+            manager.readFromFile();
             break;
         default:
             break;
         }
-    } while (menuChoice != 7);  // will loop until exit code (7) is entered for menu choice
+    } while (menuChoice != 8);  // will loop until exit code (7) is entered for menu choice
     
     return;
 }
 
 int main()
 {
+    srand(time(0));     // sets seed value for rand() function used in Asset.cpp 
+                        // otherwise the seed would change with each function call, possibly leading to duplicate IDs 
+
     getMenuChoice();
 
     system("clear");    // clear screen on Linux

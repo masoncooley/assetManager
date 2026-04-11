@@ -13,10 +13,16 @@ class Mobile : public Computer // the ": public Asset" allows Mobile to inherit 
                model;
         unsigned int storageCapacity;
 
+    // functions marked "override" will override virtual functions defined in Asset
     public:
         Mobile();   // default constructor
         Mobile(string, string, unsigned);     // constructor with arguments
-        void displayAttributes() const override;    // overrides virtual functions from Asset
+        void writeAttributesToStream(ostream&) const override;    // overrides virtual functions from Asset
         void setAttributes() override;              // to provide Mobile-specific behavior
+        
+        void displayModifiableAttributes() const override;
+        void modifyAttributes(int) override;
+
+        void readAttributesFromFile(istream&) override;
 };
 #endif

@@ -18,11 +18,17 @@ class Computer : public Asset     // the ": public Asset" allows Computer to inh
                      numStorageDevices,
                      totalStorageCapacity;
 
+    // functions marked "override" will override virtual functions defined in Asset    
     public:
         Computer(); // default constructor
         Computer(string model, unsigned cores, unsigned RAM, unsigned storageDev, unsigned storageCap); // constructor w/ arguements
-        void displayAttributes() const override;   // overrides virtual functions from Asset 
-        void setAttributes() override;             // to provide Computer-specific behavior 
+        void writeAttributesToStream(ostream&) const override;  
+        void setAttributes() override;  
+        
+        void displayModifiableAttributes() const override;
+        void modifyAttributes(int) override;
+
+        void readAttributesFromFile(istream&) override;
 };
 #endif
 

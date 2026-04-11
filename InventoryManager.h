@@ -17,21 +17,22 @@ It should be able to see and change every aspect of the assets
 
 using namespace std;
 
-
 class InventoryManager
 {
     private:
         // declares an unordered map named assetMap with key of type int and value as a smart pointer to an Asset object
         unordered_map< int, unique_ptr<Asset> > assetMap;
+    
+        // checks if ID exists in assetMap and returns true/false
+        bool isIDAvailable(int) ;
 
     // all functions are temporarily of return type "void" until I know exactly what they do and what return type they need
     public:
-        void getAssetTypes();
         void getFullAssetList();
         void addAsset();
         void modifyAsset();
         void removeAsset();
-        void searchAsset();
+        int searchAsset();
         void filterAsset();
         void saveToFile();
         void readFromFile();

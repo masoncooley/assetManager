@@ -1,0 +1,31 @@
+Type: Mobile
+ID: 2939
+Name: Mason's iPhone
+Device manufacturer: Apple
+Device model: iPhone 14 Pro
+Storage capacity: 128GB
+------------------------------------------
+Type: Server
+ID: 5708
+Name: DNS Server
+CPU model: Intel i7-9700
+# of CPU cores: 6
+RAM capacity: 32GB
+# of storage devices: 2
+Total storage capacity: 2500GB
+Uptime: 98 days
+# of CPU sockets: 1
+ECC memory: true
+------------------------------------------
+Type: Desktop
+ID: 2503
+Name: Bob's PC
+CPU model: Intel i5-10500
+# of CPU cores: 6
+RAM capacity: 16GB
+# of storage devices: 1
+Total storage capacity: 1000GB
+Dedicated GPU: true
+GPU model: Nvidia Geforce RTX 4060Ti
+GPU VRAM capacity: 8GB
+------------------------------------------
