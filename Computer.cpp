@@ -5,6 +5,7 @@
 
 #include "Computer.h"
 #include "Asset.h"
+#include "InputValidation.h" // needed for validateInteger()
 #include <iostream>     // needed for cin,cout,istream,ostream
 
 using namespace std;
@@ -52,17 +53,13 @@ void Computer::setAttributes()
     cout << "\nEnter CPU model: ";
     getline(cin, CPUmodel);
 
-    cout << "\nEnter # of CPU cores: ";
-    cin >> numCPUcores;
+    numCPUcores = validateInteger("\nEnter # of CPU cores: ", 0, 9999);
 
-    cout << "\nEnter RAM capacity (in GB): ";
-    cin >> RAMcapacity;
+    RAMcapacity = validateInteger("\nEnter RAM capacity (in GB): ", 0, 9999);
 
-    cout << "\nEnter # of storage devices (hard drives, solid state drive, etc): ";
-    cin >> numStorageDevices;
+    numStorageDevices = validateInteger("\nEnter # of storage devices (hard drives, solid state drive, etc): ", 0, 99);
 
-    cout << "\nEnter total storage capacity (in GB) (1TB = 1000GB): ";
-    cin >> totalStorageCapacity;
+    totalStorageCapacity = validateInteger("\nEnter total storage capacity (in GB) (1TB = 1000GB): ", 0, 999999);
 }
 
 // displays list of attributes that can be modified
@@ -93,20 +90,16 @@ void Computer::modifyAttributes(int attributeChoice)
                 getline(cin, CPUmodel);
                 break;
             case 3:
-                cout << "\nEnter new # of CPU cores: ";
-                cin >> numCPUcores;
+                numCPUcores = validateInteger("\nEnter new # of CPU cores: ", 0, 999);
                 break;
             case 4:
-                cout << "\nEnter new RAM capacity (in GBs): ";
-                cin >> RAMcapacity;
+                RAMcapacity = validateInteger("\nEnter new RAM capacity (in GBs): ", 0, 9999);
                 break;
             case 5: 
-                cout << "Enter new # of storage devices: ";
-                cin >> numStorageDevices;
+                numStorageDevices = validateInteger("\nEnter new # of storage devices: ", 0, 99);
                 break;
             case 6:
-                cout << "\nEnter new total storage capacity (in GBs): ";
-                cin >> totalStorageCapacity;
+                totalStorageCapacity = validateInteger("\nEnter new total storage capacity (in GBs): ", 0, 99999);
                 break;
         }
     }

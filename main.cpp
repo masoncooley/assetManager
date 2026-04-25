@@ -1,28 +1,27 @@
 // Client-facing Program
 
 #include "InventoryManager.h"
+#include "InputValidation.h"
 
 #include <iostream>
-#include <limits>   // for the numeric_limits on cin.ignore
 using namespace std;
 
 // clears screen and displays menu of options
 void displayMenu()
 {
-    system("cls");      // clear screen on windows
-    system("clear");    // clear screen on Linux
-    
+    cout << "\033[2J\033[H";     // ANSI escape code to clear screen (can be used w/ any OS)
+
     cout << "Mason's IT Asset Management System\n"
         << "_____________________________________\n\n";
         
-    cout << "1 | View a current list of assets\n"
-         << "2 | Create a new asset\n"
-         << "3 | Modify an existing asset\n"
-         << "4 | Delete an existing asset\n"
-         << "5 | Search for a single asset\n"
-         << "6 | Save assets to a file\n"
-         << "7 | Read assets from a file\n"
-         << "8 | Exit program\n"
+    cout << " 1 | View a current list of assets\n"
+         << " 2 | Create a new asset\n"
+         << " 3 | Modify an existing asset\n"
+         << " 4 | Delete an existing asset\n"
+         << " 5 | Search for a single asset\n"
+         << " 6 | Save assets to a file\n"
+         << " 7 | Read assets from a file\n"
+         << " 8 | Exit program\n"
          << "-------------------------------------------\n";
 };
 
@@ -38,26 +37,7 @@ void getMenuChoice()
         displayMenu();
         
         // get menu choice and validate until input is valid 
-        while (true)
-        {
-            // get menu choice
-            cout << "\nEnter menu choice: ";
-            cin >> menuChoice;
-
-            // catches non-numeric input
-            if (cin.fail())
-            {
-                cin.clear();    // clears error state
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');    // Discard invalid input
-
-                cout << "\nNon-numerical input was entered.\n";
-            }
-            // catches input not in range of menu choices
-            else if (menuChoice < 1 || menuChoice > 8)
-                cout << "\nInvalid menu choice. Input must be between 1 and 8! ";
-            else
-                break;
-        }
+            menuChoice = validateInteger("\nEnter menu choice: ", 1, 8);
 
         // calls appropriate function based on user menu choice
         switch (menuChoice)
@@ -98,8 +78,7 @@ int main()
 
     getMenuChoice();
 
-    system("clear");    // clear screen on Linux
-    system("cls");      // clear screen on Windows
+    cout << "\033[2J\033[H";     // ANSI escape code to clear screen (can be used w/ any OS)
     cout << "Exiting now...";
 
     return 0;

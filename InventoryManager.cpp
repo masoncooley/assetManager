@@ -6,14 +6,15 @@
 #include "Server.h"
 #include "Desktop.h"
 #include "Mobile.h"
+#include "InputValidation.h"
 
 #include <cctype>   // needed for toupper()
-#include <cstdlib>  // needed for system()
 #include <iostream> // needed for cin,cout
 #include <unordered_map>    // needed for unordered_map
 #include <memory>    // needed for smart pointers (unique_ptr)
-#include <limits>    // for the numeric_limits on cin.ignore
 #include <fstream>      // needed for file operations (ifstream, ofstream)
+#include <thread>   // needed for sleep_for() function
+#include <chrono>   // needed for seconds() inside of sleep_for function
 
 using namespace std;
 
@@ -29,8 +30,7 @@ bool InventoryManager::isIDAvailable(int targetID)
 // prints out each asset and all of its attributes 
 void InventoryManager::getFullAssetList()
 {
-    system("clear");    // Linux clear screen 
-    system("cls");      // Windows clear screen
+    cout << "\033[2J\033[H";     // ANSI escape code to clear screen (can be used w/ any OS)
 
     cout << "Getting all assets...\n\n";
 
@@ -65,36 +65,16 @@ void InventoryManager::addAsset()
     unique_ptr<Asset> newAsset;
 
     // print menu
-    system("clear");
-    system("cls");
+    cout << "\033[2J\033[H";     // ANSI escape code to clear screen (can be used w/ any OS)
+
     cout << "Asset Types: \n"
          << "_____________\n";
-    cout << "1 - Desktop\n" << "2 - Server\n" << "3 - Mobile Device\n\n";
+    cout << "1 - Desktop\n" << "2 - Server\n" << "3 - Mobile Device\n";
 
     // get user choice for asset type
     int assetTypeChoice;
-   
-    // gets input and validates it in a loop until valid input is given
-    while (true)
-    {
-        cout << "Enter the number for the type of asset to be created: ";
-        cin >> assetTypeChoice;
-
-        // checks for input not of the correct data type
-        if (cin.fail())
-        {
-            cin.clear();    // clears error state
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');    // Discard invalid input
-
-            cout << "\nNon-numeric input was entered. \n";
-        }
-
-        // validates that input is within menu option bounds
-        else if (!(assetTypeChoice >= 1 && assetTypeChoice <= 3))
-            cout << "\nInvalid choice (input was not 1, 2 or 3).\n";
-        else
-            break;
-    }
+  
+    assetTypeChoice = validateInteger("\nEnter the number for the type of asset to be created: ", 1, 3);
 
     string assetName;   // temp holder for name of newAsset
     int assetID;    // temp holder for ID of newAsset 
@@ -126,8 +106,10 @@ void InventoryManager::addAsset()
             // move() transfers ownership of the object from newAsset to assetMap 
             assetMap.emplace(assetID, std::move(newAsset)); // without the "std::" I get an "unqualified call to std::move" warning
 
-            // later i should put a check to make sure object was actually created before printing the below line 
-            cout << "\nCreated new Desktop \"" << assetName << "\" with ID " << assetID << endl;
+            if (assetMap.find(assetID) == assetMap.end())
+                cout << "\nA new Desktop asset was NOT created. Contact developer ";
+            else
+                cout << "\nCreated new Desktop \"" << assetName << "\" with ID " << assetID << endl;
 
             break;
         case 2: 
@@ -153,8 +135,10 @@ void InventoryManager::addAsset()
             // move() transfers ownership of the object from newAsset to assetMap 
             assetMap.emplace(assetID, std::move(newAsset)); // without the "std::" I get an "unqualified call to std::move" warning
 
-            // later i should put a check to make sure object was actually created before printing the below line 
-            cout << "\nCreated new Server \"" << assetName << "\" with ID " << assetID << endl;
+            if (assetMap.find(assetID) == assetMap.end())
+                cout << "\nA new Server asset was NOT created. Contact developer ";
+            else
+                cout << "\nCreated new Server \"" << assetName << "\" with ID " << assetID << endl;
 
             cin.ignore();   // needed so that cin.get() outside switch statement doesn't accept newline character
 
@@ -181,9 +165,11 @@ void InventoryManager::addAsset()
             // adds entry to assetMap with asset ID as key and newAsset object as value
             // move() transfers ownership of the object from newAsset to assetMap 
             assetMap.emplace(assetID, std::move(newAsset)); // without the "std::" I get an "unqualified call to std::move" warning
-           
-            // later i should put a check to make sure object was actually created before printing the below line 
-            cout << "\nCreated new Mobile device \"" << assetName << "\" with ID " << assetID << endl;
+          
+            if (assetMap.find(assetID) == assetMap.end())
+                cout << "\nA new Mobile asset was NOT created. Contact developer ";
+            else 
+                cout << "\nCreated new Mobile device \"" << assetName << "\" with ID " << assetID << endl;
 
             cin.ignore();   // needed so that cin.get() outside switch statement doesn't accept newline character
 
@@ -216,14 +202,26 @@ void InventoryManager::modifyAsset()
     // serves 2 purposes:
     // - gets user confirmation on asset selection 
     // - provides ID to this function for use in modifying assets
-    cout << "\nRe-type ID of the asset you want to modify (for confirmation purposes): ";
-    cin >> assetID;
+    assetID = validateInteger("\nRe-type ID of the asset you want to modify (for confirmation purposes): ", 0, 9999);
+
+    // check that an asset with ID assetID actually exists 
+    // .at() function will cause program to crash if called with nonexistent ID
+    if (assetMap.find(assetID) == assetMap.end())
+    {
+        cout << "\nAn asset with that ID does not exist!";
+        
+        // waits for 3 secs before exiting to main menu
+        cout << "\n\nExiting to main menu in 3 secs..." << endl;
+        this_thread::sleep_for(chrono::seconds(3));
+        return;
+    }
+
 
     unique_ptr<Asset>& assetToModify = assetMap.at(assetID);    // sets current asset to be modified by function
 
     do 
     {
-        system("clear");
+        cout << "\033[2J\033[H";     // ANSI escape code to clear screen (can be used w/ any OS)
 
         cout << "\nList of modifiable attributes:\n"
              << "_________________________________\n\n";
@@ -232,26 +230,7 @@ void InventoryManager::modifyAsset()
         cout << "(0) - Exit modification menu \n";
 
         // gets attributeChoice and validates input until valid
-        while (true)
-        {
-            cout << "\nEnter integer corresponding with the attribute you would like to modify: ";
-            cin >> attributeChoice;
-
-            // catches non-numeric input
-            if (cin.fail()) 
-            {
-                cin.clear();    // clears error state
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');    // Discard invalid input
-
-                cout << "\nNon-numeric input was entered. \n";
-            }
-
-            // catches input out of range of menu options
-            if (attributeChoice < 0 || attributeChoice > 9)
-                cout << "Input must be between 0 and 9!\n";
-            else
-                break;
-        }
+        attributeChoice = validateInteger("\nEnter integer corresponding with the attribute you would like to modify: ", 0, 9);
 
         assetToModify->modifyAttributes(attributeChoice);   // calls modify function specific to asset type
 
@@ -272,37 +251,31 @@ void InventoryManager::removeAsset()
     string confirmation;
 
     // gets targetID and validates input until valid input is entered
-    while (true)
+    targetID = validateInteger("\nEnter the ID for the asset you wish to delete: ", 0, 9999);
+
+    // check that an asset with ID targetID actually exists 
+    // .at() function will cause program to crash if called with nonexistent ID
+    if (assetMap.find(targetID) == assetMap.end())
     {
-        cout << "\nEnter the ID for the asset you wish to delete: ";
-        cin >> targetID;
-
-        // catches non-numeric input
-        if (cin.fail()) 
-        {
-            cin.clear();    // clears error state
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');    // Discard invalid input
-            cout << "\nNon-numeric input was entered. \n";
-        }
-
-        // catches input outside of ID range
-        if (targetID < 0 || targetID > 10000)
-            cout << "Input must be between 0 and 10,000!\n";
-        else
-            break;
+        cout << "\nAn asset with that ID does not exist!";
+        
+        // waits for 3 secs before exiting to main menu
+        cout << "\n\nExiting to main menu in 3 secs..." << endl;
+        this_thread::sleep_for(chrono::seconds(3));
+        return;
     }
 
     unique_ptr<Asset>& assetToDelete = assetMap.at(targetID);   // creates new Asset object matching the asset user wants to delete
                                                                 // in order to print out asset type, ID, and name
 
     // makes sure user wants to delete chosen asset
-    cout << "Are you sure you want to delete " << assetToDelete->getAssetType() << " asset \"" << assetToDelete->getName() 
+    cout << "\nAre you sure you want to delete " << assetToDelete->getAssetType() << " asset \"" << assetToDelete->getName() 
          << "\" with ID #" << assetToDelete->getID() << "? ";
-    cout << "\nEnter \"CONFIRM\" to confirm deletion: ";
+    cout << "\nEnter \"CONFIRM\" to confirm deletion (enter \"NO\" to cancel deletion): ";
     cin >> confirmation;
    
     // standardizes confirmation string by converting each individual character to uppercase
-    for (int i = 0; i < confirmation.length(); i++)
+    for (int i = 0; i < static_cast<int>(confirmation.length()); i++)
         confirmation[i] = toupper(confirmation[i]);
 
     // if user is sure, erases 
@@ -312,26 +285,27 @@ void InventoryManager::removeAsset()
 
         // ensures that chosen asset was deleted by searching for it again
         if (assetMap.find(targetID) == assetMap.end())
-        {
             cout << "\n\nAsset successfully deleted! ";
 
-            // wait for user before continuing
-            cout << "\nEnter any key to exit to main menu: ";
-            cin.ignore();
-            cin.get();
-        }
+        else 
+            cout << "\n\nConfirmation received but Asset was not successfully deleted! Contact developer ";
     }
-    else
-        cout << "\n\nConfirmation not received, exiting to main menu...";
 
+    // if user does not EXPLICITLY confirm deletion, nothing will be deleted
+    else
+        cout << "\n\nConfirmation not received. "; 
+
+    // waits for 3 secs before exiting to main menu
+    cout << "Exiting to main menu in 3 secs..." << endl;
+    this_thread::sleep_for(chrono::seconds(3));
+    return;
 }
 
 // searches for a stored asset when given an ID or Name
-// return code 0 indicates function executed correctly, code 1 means assetMap was empty (no assets to search for)
+// return code 0 indicates function executed correctly, code 1 means assetMap was empty or ID not found
 int InventoryManager::searchAsset()
 {
-    system("clear");    // Linux clear screen
-    system("cls");      // Windows clear screen
+    cout << "\033[2J\033[H";     // ANSI escape code to clear screen (can be used w/ any OS)
 
     // if nothing is stored in the asset map, exit the function early to prevent unwanted behavior
     if (assetMap.empty())
@@ -339,35 +313,16 @@ int InventoryManager::searchAsset()
         cout << "\nThere are no assets to search for!";
         
         // wair for user input before continuing
-        cout << "\nEnter any key to exit to main menu...";
-        cin.ignore();
-        cin.get();
+        cout << "\nExiting to main menu in 4 secs...";
+        this_thread::sleep_for(chrono::seconds(4));     // waits for 5 secs so user can read output
 
-        return 1;   // code indicates no assets present in map
+        return 1;   // code 1 indicates no assets present in map
     }
 
     int searchChoice = 0;
 
     // gets searchChoice and validates until valid input is entered
-    while (true)
-    {
-        cout << "Search by ID (enter 1) or Name (enter 2)? ";
-        cin >> searchChoice;
-
-        // catches non-numeric input
-        if (cin.fail())
-        {
-            cin.clear();    // clears error state
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');    // Discard invalid input
-
-            cout << "\nNon-numeric input was entered. \n";
-        }
-        // catches input not in range of choices
-        else if (searchChoice != 1 && searchChoice != 2)
-            cout << "\nInvalid choice (input was not 1 or 2).\n";
-        else
-            break;
-    }
+    searchChoice = validateInteger("Search by ID (enter 1) or Name (enter 2)? ", 1, 2);
 
     // searches by ID or Name based on user choice
     switch (searchChoice) 
@@ -377,39 +332,25 @@ int InventoryManager::searchAsset()
             int searchID;
 
             // gets searchID and validates until valid input is entered
-            while (true)
-            {
-                cout << "\n\nEnter the asset ID to search for: ";
-                cin >> searchID;
-
-                // catches non-numeric input
-                if (cin.fail()) 
-                {
-                    cin.clear();    // clears error state
-                    cin.ignore(numeric_limits<streamsize>::max(), '\n');    // Discard invalid input
-
-                    cout << "\nNon-numeric input was entered. \n";
-                }
-                // catches input not in range of valid IDs
-                else if (searchID < 0 || searchID > 10000)
-                    cout << "Input must be between 0 and 10,000!\n";
-                else
-                    break;
-            }
+            searchID = validateInteger("\n\nEnter the asset ID to search for: ", 0, 9999);
 
             auto idResult = assetMap.find(searchID);    // .find() returns an iterator
 
             // ensure chosen asset exists
             // idResult will = end of map if no key matching the input was found
             if (idResult == assetMap.end())
-                cout << "\nAn asset with that ID does not exist. Please try again.";
+            {
+                cout << "\nAn asset with that ID does not exist. \n\nExiting to main menu in 5 secs..." << endl;
+                
+                this_thread::sleep_for(chrono::seconds(5));     // pauses program for 5 secs to allow user to read output
+                return 1;   // return code indicates that no asset was found 
+            }
             else
             {
                 unique_ptr<Asset>& assetResult = assetMap.at(searchID); // creates new Asset object and sets address to 
                                                                         // value associated with key searchID in the map
                
-                system("clear");
-                system("cls");
+                cout << "\033[2J\033[H";     // ANSI escape code to clear screen (can be used w/ any OS)
 
                 // prints all attributes for resulting asset object
                 cout << "Search results for ID #" << searchID << ": \n\n";
@@ -429,8 +370,7 @@ int InventoryManager::searchAsset()
             cin.ignore();
             getline(cin, targetName);
 
-            system("clear");    // Linux clear screen
-            system("cls");      // Windows clear screen
+            cout << "\033[2J\033[H";     // ANSI escape code to clear screen (can be used w/ any OS)
 
             cout << "Search results for \"" << targetName << "\":\n\n";
 
@@ -449,10 +389,15 @@ int InventoryManager::searchAsset()
                 }
             }
 
-            // if no match found (flag var is false), inform user 
+            // if no match found (flag var is false), inform user and exit
             if (!found)
-                cout << "\nAsset \"" << targetName << "\" not found!";
-
+            {
+                cout << "\nAsset \"" << targetName << "\" not found!"
+                     << "\nExiting to main menu in 5 secs..." << endl;
+                
+                this_thread::sleep_for(chrono::seconds(5));     // pauses program for 5 secs to allow user to read output
+                return 1;   // return code indicates that no asset was found 
+            }
             break;
         }
         default:
@@ -473,11 +418,22 @@ int InventoryManager::searchAsset()
 // saves all currently stored assets from program memory into a file of user's choice
 void InventoryManager::saveToFile()
 {
-    system("clear");
-    system("cls");
+    cout << "\033[2J\033[H";     // ANSI escape code to clear screen (can be used w/ any OS)
 
     string userFilename;
     ofstream outputFile;    // creates output file stream object
+
+    // if there are no assets to store in file, inform user and exit to menu
+    if (assetMap.empty())
+    {
+        cout << "\nThere are no assets stored in memory! "
+             << "\nExiting to main menu in 5 secs..." << endl;
+
+        this_thread::sleep_for(chrono::seconds(5));     // waits for 5 secs so user can read output
+        return;
+
+    }
+
 
     // get filename for file assets will be saved to 
     cout << "\nEnter filename to save data to (leave empty for default). "
@@ -486,12 +442,11 @@ void InventoryManager::saveToFile()
     cin.ignore();
     getline(cin, userFilename);
 
-    // if user DOES NOT leave input empty, open object with user filename
-    if (userFilename != "")
-        outputFile.open(userFilename);
-    // else (no input given), open object with default filename
-    else 
-        outputFile.open("assets.txt");
+    // if no filename was given, set file name to default
+    if (userFilename == "")
+        userFilename = "assets.txt";
+
+    outputFile.open(userFilename);
 
     // if file opens correctly, write attributes for all assets to file
     if (outputFile)
@@ -504,35 +459,56 @@ void InventoryManager::saveToFile()
 
             asset->writeAttributesToStream(outputFile); // outputFile arg means output will be sent to file (not console like in cout)
         }
+
+        cout << "\nData saved to file \"" << userFilename << "\"! \n";
     }
     else
         cout << "\nError opening the file!\n";
 
     outputFile.close();
+
+    // waits for 5 secs before exiting to main menu
+    cout << "Exiting to main menu in 5 secs..." << endl;
+    this_thread::sleep_for(chrono::seconds(5));
+    return;
+
 }
 
 // adds assets into program memory from existing file of user's choice
 void InventoryManager::readFromFile()
 {
-    
-    system("clear");
-    system("cls");
+    cout << "\033[2J\033[H";     // ANSI escape code to clear screen (can be used w/ any OS)
 
     string inputFilename;
     ifstream inputFile;    // creates output file stream object
 
     cout << "\nEnter filename to read data from (leave empty for default). "
-         << "\nFilename must include a \".txt\" extension at the end.\n"
+         << "\nFilename must include a \".txt\" extension at the end (unless empty).\n"
          << "\nFilename: ";
     cin.ignore();
     getline(cin, inputFilename);
 
-    // if user didn't supply a filename, use default
-    if (inputFilename != "")
-        inputFile.open(inputFilename);
-    // else, use provided filename
-    else
-        inputFile.open("assets.txt");
+    // if no filename was given, set file name to default
+    if (inputFilename == "")
+        inputFilename = "assets.txt";
+        
+    // inform user that current assets will be retained after file import
+    if (assetMap.size() != 0)
+    {
+        cout << "\n\nNOTICE: There are currently " << assetMap.size() << " asset(s) stored in program memory." 
+             << "\nAssets from \"" << inputFilename << "\" will be appended to current list of assets. \n";
+        this_thread::sleep_for(chrono::milliseconds(4500));   // wait for 4.5 secs so user can read message before file is opened
+    }
+    inputFile.open(inputFilename);
+
+
+    if (inputFile.fail())
+    {
+        cout << "\nFile \"" << inputFilename << "\" was not found, exiting to main menu in 5 secs..." << endl;
+        
+        this_thread::sleep_for(chrono::seconds(5));     // waits for 5 secs before exiting so user can read output 
+        return;
+    }
 
     string line;
 
@@ -561,11 +537,13 @@ void InventoryManager::readFromFile()
         getline(inputFile, line); // skip separator (---) between assets in file
     }
 
-    // if no input can be received from file
-    if (!getline(inputFile, line)) 
-        cout << "\nError opening the file!\n";
-
     inputFile.close();
+
+    cout << "\nAsset data successfully read from \"" << inputFilename << "\" \n";
+
+    cout << "\nExiting to main menu in 5 secs..." << endl;
+    this_thread::sleep_for(chrono::seconds(5));
+    return;
 }
 
 

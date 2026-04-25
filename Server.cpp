@@ -3,7 +3,9 @@
 #include "Server.h"
 #include "Asset.h"
 #include "Computer.h"
-#include <cctype>
+#include "InputValidation.h"
+
+#include <cctype>   // needed for toupper 
 #include <iostream>
 
 using namespace std;
@@ -45,11 +47,9 @@ void Server::setAttributes()
 {
     Computer::setAttributes();  // sets Computer-derived attributes for Server object
 
-    cout << "\nEnter uptime (in whole days): ";
-    cin >> uptime;
+    uptime = validateInteger("\nEnter uptime (in whole days): ", 0, 99999);
 
-    cout << "\nEnter # of CPU sockets: ";
-    cin >> numCPUsockets;
+    numCPUsockets = validateInteger("\nEnter # of CPU sockets: ", 0, 10);
 
     char eccMemoryChoice;
 
@@ -90,12 +90,10 @@ void Server::modifyAttributes(int attributeChoice)
         switch (attributeChoice)
         {
             case 7:
-                cout << "\nEnter new uptime (in days): ";
-                cin >> uptime;
+                uptime = validateInteger("\nEnter new uptime (in days): ", 0, 99999);
                 break;
             case 8:
-                cout << "\nEnter new # of CPU sockets: ";
-                cin >> numCPUsockets;
+                numCPUsockets = validateInteger("\nEnter new # of CPU sockets: ", 0, 10);
                 break;
             case 9:
             {

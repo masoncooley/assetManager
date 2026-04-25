@@ -10,7 +10,7 @@ using namespace std;
 int generateRandomID()
 {
     const int MIN_VALUE = 1,
-              MAX_VALUE = 10000; // 10000 is an arbitrary limit
+              MAX_VALUE = 9999; // only want 4 digit IDs 
 
     int randNum;
 

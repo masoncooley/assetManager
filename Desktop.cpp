@@ -3,8 +3,12 @@
 #include "Desktop.h"
 #include "Asset.h"
 #include "Computer.h"
+#include "InputValidation.h"
+
 #include <cctype>   // needed for toupper
 #include <iostream> // needed for cin,cout,istream,ostream
+#include <thread>   // needed for sleep_for() function
+#include <chrono>   // needed for seconds() inside of sleep_for function
 
 using namespace std;
 
@@ -72,28 +76,23 @@ void Desktop::setAttributes()
         VRAMcapacity = 0;
        
         // wait for user input before continuing
-        cout << "\nNo GPU entered, enter any key to exit...";
-        cin.ignore();
-        cin.get();
+        cout << "\nNo GPU entered..." << endl;
+        this_thread::sleep_for(chrono::seconds(3));     // waits for 3 secs so user can read output
     }
     // if there is GPU, get model and VRAM capacity 
     else if (char_hasGPU == 'Y')
     {
-        hasGPU = true;  // user entered Y so there is a GPU
+        hasGPU = true;  // user entered Y so the desktop has a GPU
 
         cout << "\nWhat's the model of the Graphics Card? ";
         cin.ignore();
         getline(cin, GPUmodel);     // getline is used b/c many GPU model names have spaces (ex: RTX 5090)
 
-        cout << "\nHow many GBs of VRAM does the Graphics Card have? ";
-        cin >> VRAMcapacity;
-
+        VRAMcapacity = validateInteger("\nHow many GBs of VRAM does the Graphics Card have? ", 0, 999);
     }
-
     // theoretically this will never execute but it's here just in case 
     else 
        cout << "\n\nSomething went wrong with the input for GPU. Try again"; 
-
 }
 
 // displays all attributes for a Desktop object that can be modified
@@ -141,8 +140,7 @@ void Desktop::modifyAttributes(int attributeChoice)
                 getline(cin, GPUmodel);
                 break;
             case 9:
-                cout << "\nEnter new graphics card VRAM capacity (in GBs): ";
-                cin >> VRAMcapacity;
+                VRAMcapacity = validateInteger("\nEnter new graphics card VRAM capacity (in GBs): ", 0, 999);
                 break;
         }
     }

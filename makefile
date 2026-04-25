@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -Wall -Wextra -std=c++17 -g
 
-SRCS = main.cpp Asset.cpp Computer.cpp Desktop.cpp InventoryManager.cpp Mobile.cpp Server.cpp
+SRCS = main.cpp Asset.cpp Computer.cpp Desktop.cpp InventoryManager.cpp Mobile.cpp Server.cpp InputValidation.cpp
 OBJS = $(SRCS:.cpp=.o)
 TARGET = program
 

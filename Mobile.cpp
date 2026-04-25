@@ -2,6 +2,8 @@
 
 #include "Mobile.h"
 #include "Asset.h"
+#include "InputValidation.h"
+
 #include <iostream> // needed for cin,cout,istream,ostream
 
 using namespace std;
@@ -50,8 +52,7 @@ void Mobile::setAttributes()
     cout << "\nEnter device model: ";
     getline(cin, model);
 
-    cout << "\nEnter storage capacity (in GB): ";
-    cin >> storageCapacity;
+    storageCapacity = validateInteger("\nEnter storage capacity (in GB): ", 0, 9999);
 }
 
 // displays list of attributes that can be modified
@@ -84,8 +85,7 @@ void Mobile::modifyAttributes(int attributeChoice)
                 getline(cin, model);
                 break;
             case 4:
-                cout << "\nEnter new device storage capacity: ";
-                cin >> storageCapacity;
+                storageCapacity = validateInteger("\nEnter new device storage capacity: ", 0, 9999);
                 break;
 
 
